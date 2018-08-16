@@ -15,7 +15,7 @@ class ApprovalObserver {
 	 */
 	public function creating(Model $model)
 	{
-		$model->saveApprovalModel('CREATE');
+		$model->setEvent('CREATE')->saveApprovalModel();
 
 		return false;
 	}
@@ -28,7 +28,7 @@ class ApprovalObserver {
 	 */
 	public function updating(Model $model)
 	{
-		$model->saveApprovalModel('UPDATE');
+		$model->setEvent('UPDATE')->saveApprovalModel();
 
 		return false;
 	}
@@ -41,7 +41,7 @@ class ApprovalObserver {
 	 */
 	public function deleting(Model $model)
 	{
-		$model->saveApprovalModel('DELETE');
+		$model->setEvent('DELETE')->saveApprovalModel();
 
 		return false;
 	}

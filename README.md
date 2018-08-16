@@ -4,19 +4,12 @@ Approval process for Laravel's Eloquent models.
 
 ## How it works?
 
-New entities are marked as _pending_ and then can become _approved_ or _rejected_.
-
-When querying the model only _approved_ entities are included meaning _rejected_
-entities as well as _pending_ ones are excluded. You can include those by
-explicitly specifying it.
-
-When an update occurs that modifies attributes that require approval the entity
-becomes _suspended_ again.
+New entities are created in the 'approval' table as _pending_ and then can become _approved_ or _rejected_.
 
 ## Install
 
 ```sh
-$ composer require mtvs/eloquent-approval
+$ composer require traknpay/laravel-eloquent-approval
 ```
 
 ### Version Compatibility
@@ -34,216 +27,40 @@ By default the service provider is registered automatically by Laravel package
 discovery otherwise you need to register it in your `config\app.php`
 
 ```php
-Mtvs\EloquentApproval\ApprovalServiceProvider::class
+TraknPay\LaravelEloquentApproval\ApprovalServiceProvider::class
 ```
 
-
-### Database
-
-You need to add two columns to your model's database schema, one to store
-the _approval status_ itself and another to store the timestamp at which the 
-last status update has occurred.
-
+Run the following commands to migrate the 'approval' table:
 ```php
-$table->tinyInteger('approval_status');
-$table->timestamp('approval_at')->nullable();
+php artisan vendor:publish --provider='TraknPay\LaravelEloquentApproval\ApprovalServiceProvider'
+
+php artisan migrate
 ```
+### Model
 
-You can change the default column names but then you need to specify them on the model.
-
-### Model 
-
-Add `Approvable` trait to the model
+Add `ApprovalTrait` trait to the model and override the `isApprover()` function as per your need.
 
 ```php    
 use Illuminate\Database\Eloquent\Model;
-use Mtvs\EloquentApproval\Approvable;
+use TraknPay\LaravelEloquentApproval\ApprovalTrait;
 
 class Entity extends Model
 {
-    use Approvable;
-}
-```
-
-If you decided to change the default column names you need to specify them
-by adding class constants to your model
-
-```php    
-use Illuminate\Database\Eloquent\Model;
-use Mtvs\EloquentApproval\Approvable;
-
-class Entity extends Model
-{
-    use Approvable;
+    use ApprovalTrait;
     
-    const APPROVAL_STATUS = 'custom_approval_status';
-    const APPROVAL_AT = 'custom_approval_at';
-}
-```
-
-> Add `approval_at` to the model `$dates` to get `Carbon` instances when accessing it.
-
-#### Approval Required Attributes
-
-When an update occurs that modifies attributes that require
-approval the entity becomes _suspended_ again.
-
-```php
-$entity->update($attributes); // an update with approval required modification
-
-$entity->isPending(); // true
-```
-
-> Note that this happens only when you perform the _update_ on `Model` object
-itself not by using a query `Builder` instance.
-
-By default all attributes require approval.
-
-```php
-/**
- * @return array
- */
-public function approvalRequired()
-{
-    return ['*'];
-}
-
-/**
- * @return array
- */
-public function approvalNotRequired()
-{
-    return [];
-}
-```
-
-You can override them to have a custom set of approval required attributes.
-
-They work like `$fillable` and `$guarded` in Eloquent. `approvalRequired()` returns
-the _black list_ while `approvalNotRequired()` returns the _white list_.  
-
-## Usage
-
-Newly created entities are marked as _pending_ and by default excluded from 
-queries on the model. 
-
-```php
-Entity::create(); // #1 pending
-
-Entity::all(); // []
-
-Entity::find(1); // null
-```
-
-### Including all the entities
-
-```php
-Entity::anyApprovalStatus()->get(); // retrieving all
-
-Entity::anyApprovalStatus()->find(1); // retrieving one
-
-Entity::anyApprovalStatus()->delete(); // deleting all
-```
-
-### Limiting to only a specific status
-
-```php
-Entity::onlyPending()->get(); // retrieving only pending entities
-Entity::onlyRejected()->get(); // retrieving only rejected entities
-Entity::onlyApproved()->get(); // retrieving only approved entities
-```
-
-### Updating status 
-
-#### On model objects
-
-You can update the status of an entity by using provided methods on the `Model`
-object.
-
-```php
-$entity->approve(); // returns bool if the entity exists otherwise null  
-$entity->reject(); // returns bool if the entity exists otherwise null  
-$entity->suspend(); // returns bool if the entity exists otherwise null  
-```
-
-#### On `Builder` objects
-
-You can update the statuses of entities by using provided methods on `Builder`
-objects.
-
-```php
-Entity::whereIn('id', $updateIds)->approve(); // returns number of updated
-Entity::whereIn('id', $updateIds)->reject(); // returns number of updated
-Entity::whereIn('id', $updateIds)->suspend(); // returns number of updated
-```
-
-#### Timestamps refresh
-
-When you update the status of an entity its `approval_at` and `updated_at`
-columns are both refreshed. Before the first approval action on an entity its
-`approval_at` is `null`. 
-
-### Check the status of an entity
-
-You can check the status of an entity using provided methods on `Model` objects.
-
-```php
-$entity->isApproved(); // returns bool if entity exists otherwise null
-$entity->isRejected(); // returns bool if entity exists otherwise null
-$entity->isPending(); // returns bool if entity exists otherwise null
-```
-
-### Approval Events
-
-There are some model events that dispatched before and after each approval action.
-
-| Action  | Before     | After     |
-|---------|------------|-----------|
-| approve | approving  | approved  |
-| suspend | suspending | suspended |
-| reject  | rejecting  | rejected  |
-
-You can hook to them by calling the provided `static` methods named after them
-and passing your callback.
-
-```php
-use Illuminate\Database\Eloquent\Model;
-use Mtvs\EloquentApproval\Approvable;
-
-class Entity extends Model
-{
-    use Approvable;
-    
-    protected static function boot()
+    public static function isApprover(): bool
     {
-        parent::boot();
-        
-        static::approving(function ($entity) {
-            // You can prevent it by returning false
-        });
-        
-        static::approved(function ($entity) {
-            // $entity has been approved
-        });
+        return true;
     }
 }
 ```
 
-[Eloquent model events](https://laravel.com/docs/eloquent#events) can also be mapped to your application event classes.
+By default `isApprover()` is true and if you use this trait, it will not put the new entities in the `approval` table. You can override this functionality based on your need. If `isApprover()` function returns false then entities are added to `approval` table and mark the transaction as false.
+Hence, if 'isApprover()' returns false the model will not be persited to database instead added to 'approval' table for approval.
+For example, in this function you can check whether user has permission to approve or not.
 
-## Development / Contribution
-
-### Run tests
-
-```sh   
-$ composer test
-```
 
 ## Inspirations
 
-When I was searching for an existing package for approval functionality
-on eloquent models I encountered [hootlex/laravel-moderation](https://github.com/hootlex/laravel-moderation)
-even though I decided to write my own package I got some helpful inspirations from that one.
-
-I also wrote different parts of the code following the way that similar parts 
-of [Eloquent](https://github.com/laravel/framework/tree/master/src/Illuminate/Database/Eloquent) itself is written.
+I got some inspiration from [mtvs/eloquent-approval](https://github.com/mtvs/eloquent-approval) package.
+Even though , I wrote my own package for my project purpose I got some insights on how to write my own package from this.

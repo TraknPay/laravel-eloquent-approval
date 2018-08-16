@@ -10,6 +10,11 @@ trait ApprovalTrait {
 	use HasEvents;
 
 	/**
+	 * @var string
+	 */
+	private $event;
+
+	/**
 	 * boot the trait and register the observer
 	 */
 	public static function bootApprovalTrait()
@@ -33,18 +38,10 @@ trait ApprovalTrait {
 	/**
 	 * save approval model
 	 *
-	 * @param $operation
 	 */
-	public function saveApprovalModel($operation)
+	public function saveApprovalModel()
 	{
-		Approval::create([
-			'user_id'     => $this->resolveUser(),
-			'approver_id' => $this->resolveUser(),
-			'model'       => $this->getMorphClass(),
-			'operation'   => $operation,
-			'values'      => serialize($this),
-			'is_approved' => 'n',
-		]);
+		Approval::create($this->transformApprove());
 	}
 
 	/**
@@ -54,5 +51,43 @@ trait ApprovalTrait {
 	private function resolveUser()
 	{
 		return Auth::check() ? Auth::user()->getAuthIdentifier() : 0;
+	}
+
+	/**
+	 * transform approve
+	 *
+	 * @return array
+	 */
+	protected function transformApprove(): array
+	{
+		return [
+			'user_id'     => $this->resolveUser(),
+			'approver_id' => $this->resolveUser(),
+			'model'       => $this->getMorphClass(),
+			'operation'   => $this->getEvent(),
+			'values'      => serialize($this),
+			'is_approved' => 'n',
+		];
+	}
+
+	/**
+	 * get event
+	 * @return string
+	 */
+	public function getEvent()
+	{
+		return $this->event;
+	}
+
+	/**
+	 * set event
+	 * @param $eventName
+	 * @return $this
+	 */
+	public function setEvent($eventName)
+	{
+		$this->event = $eventName;
+
+		return $this;
 	}
 }
