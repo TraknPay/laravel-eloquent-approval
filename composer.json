@@ -1,0 +1,30 @@
+{
+  "name": "traknpay/laravel-eloquent-approval",
+  "description": "Approval Package For Laravel Eloquent Model",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Sharathkumar Hegde",
+      "email": "Sharathkumar.hegde@omniware.in"
+    }
+  ],
+  "require": {
+    "php": "^7.0",
+    "illuminate/database": "~5.6.0",
+    "illuminate/support": "~5.6.0"
+  },
+  "extra": {
+      "laravel": {
+          "providers": [
+              "TraknPay\\EloquentApproval\\ApprovalServiceProvider"
+          ]
+      }
+  },
+  "autoload": {
+    "psr-4": {
+      "TraknPay\\EloquentApproval\\": "src/"
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable" : true
+}
