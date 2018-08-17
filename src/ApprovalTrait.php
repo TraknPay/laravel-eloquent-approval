@@ -7,12 +7,12 @@ use Illuminate\Database\Eloquent\Concerns\HasEvents;
 use Illuminate\Support\Facades\Auth;
 
 trait ApprovalTrait {
-	use HasEvents;
+	use ApprovalEvents;
 
 	/**
 	 * @var string
 	 */
-	private $event;
+	private $operation;
 
 	/**
 	 * boot the trait and register the observer
@@ -64,7 +64,7 @@ trait ApprovalTrait {
 			'user_id'     => $this->resolveUser(),
 			'approver_id' => $this->resolveUser(),
 			'model'       => $this->getMorphClass(),
-			'operation'   => $this->getEvent(),
+			'operation'   => $this->getOperation(),
 			'values'      => serialize($this),
 			'is_approved' => 'n',
 		];
@@ -74,9 +74,9 @@ trait ApprovalTrait {
 	 * get event
 	 * @return string
 	 */
-	public function getEvent()
+	public function getOperation()
 	{
-		return $this->event;
+		return $this->operation;
 	}
 
 	/**
@@ -84,9 +84,9 @@ trait ApprovalTrait {
 	 * @param $eventName
 	 * @return $this
 	 */
-	public function setEvent($eventName)
+	public function setOperation($eventName)
 	{
-		$this->event = $eventName;
+		$this->operation = $eventName;
 
 		return $this;
 	}

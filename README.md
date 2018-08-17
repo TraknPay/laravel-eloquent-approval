@@ -59,6 +59,12 @@ By default `isApprover()` is true and if you use this trait, it will not put the
 Hence, if 'isApprover()' returns false the model will not be persited to database instead added to 'approval' table for approval.
 For example, in this function you can check whether user has permission to approve or not.
 
+##Approval Events
+
+Following model events are dispatched before and after saving data into 'approval' table.
+
+1. `sendingForApproval` - before saving data into 'approval' table.
+2. `sentForApproval` - after saving data into 'approval' table.
 
 ## Inspirations
 
