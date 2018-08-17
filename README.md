@@ -27,12 +27,12 @@ By default the service provider is registered automatically by Laravel package
 discovery otherwise you need to register it in your `config\app.php`
 
 ```php
-TraknPay\LaravelEloquentApproval\ApprovalServiceProvider::class
+TraknPay\EloquentApproval\ApprovalServiceProvider::class
 ```
 
 Run the following commands to migrate the 'approval' table:
 ```php
-php artisan vendor:publish --provider='TraknPay\LaravelEloquentApproval\ApprovalServiceProvider'
+php artisan vendor:publish --provider='TraknPay\EloquentApproval\ApprovalServiceProvider'
 
 php artisan migrate
 ```
@@ -42,7 +42,7 @@ Add `ApprovalTrait` trait to the model and override the `isApprover()` function 
 
 ```php    
 use Illuminate\Database\Eloquent\Model;
-use TraknPay\LaravelEloquentApproval\ApprovalTrait;
+use TraknPay\EloquentApproval\ApprovalTrait;
 
 class Entity extends Model
 {
