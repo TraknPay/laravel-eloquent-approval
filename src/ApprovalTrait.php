@@ -41,7 +41,15 @@ trait ApprovalTrait {
 	 */
 	public function saveApprovalModel()
 	{
+		// If the "sendingForApproval" event returns false we'll bail out of the save and return
+		// false, indicating that the approval failed. This provides a chance for any
+		// listeners to cancel save operations if validations fail or whatever.
+		if ($this->fireModelEvent('sendingForApproval') === false) {
+			return false;
+		}
 		Approval::create($this->transformApprove());
+		/* fire a sent for approval event */
+		$this->fireModelEvent('sentForApproval', false);
 	}
 
 	/**
