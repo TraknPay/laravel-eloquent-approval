@@ -66,7 +66,7 @@ trait ApprovalTrait {
 	 *
 	 * @return array
 	 */
-	protected function transformApprove(): array
+	public function transformApprove(): array
 	{
 		return [
 			'user_id'     => $this->resolveUser(),
@@ -74,6 +74,7 @@ trait ApprovalTrait {
 			'model'       => $this->getMorphClass(),
 			'operation'   => $this->getOperation(),
 			'values'      => serialize($this),
+			'changes'     => serialize($this->getDirty()),
 			'is_approved' => 'n',
 		];
 	}
