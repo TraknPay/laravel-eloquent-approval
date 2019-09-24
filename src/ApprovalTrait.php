@@ -56,7 +56,7 @@ trait ApprovalTrait {
 	 * resolve the user
 	 * @return int|mixed
 	 */
-	private function resolveUser()
+	private function identifyUser()
 	{
 		return Auth::check() ? Auth::user()->getAuthIdentifier() : 0;
 	}
@@ -69,8 +69,8 @@ trait ApprovalTrait {
 	public function transformApprove(): array
 	{
 		return [
-			'user_id'     => $this->resolveUser(),
-			'approver_id' => $this->resolveUser(),
+			'user_id'     => $this->identifyUser(),
+			'approver_id' => $this->identifyUser(),
 			'model'       => $this->getMorphClass(),
 			'operation'   => $this->getOperation(),
 			'values'      => serialize($this),
