@@ -70,7 +70,7 @@ trait ApprovalTrait {
 	{
 		return [
 			'user_id'     => $this->identifyUser(),
-			'approver_id' => $this->identifyUser(),
+			'approver_id' => null,
 			'model'       => $this->getMorphClass(),
 			'operation'   => $this->getOperation(),
 			'values'      => serialize($this),
