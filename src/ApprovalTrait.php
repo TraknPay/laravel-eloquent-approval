@@ -68,7 +68,8 @@ trait ApprovalTrait {
 	 */
 	public function transformApprove(): array
 	{
-		return [
+		$optional_data = $this->optionalApprovalData();
+		return array_merge([
 			'user_id'     => $this->identifyUser(),
 			'approver_id' => null,
 			'model'       => $this->getMorphClass(),
@@ -76,8 +77,16 @@ trait ApprovalTrait {
 			'values'      => serialize($this),
 			'changes'     => serialize($this->getDirty()),
 			'is_approved' => 'n',
-		];
+		],$optional_data);
 	}
+
+	/**
+	 * This function can be overridden by user to pass additional data like reference_id
+     * @return array
+     */
+	public function optionalApprovalData(){
+	    return [];
+    }
 
 	/**
 	 * get event
