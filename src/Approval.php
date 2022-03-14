@@ -19,7 +19,7 @@ class Approval extends Model {
 	 * @var array
 	 */
 	protected $fillable = [
-		'user_id', 'approver_id', 'model', 'operation', 'values','changes', 'is_approved', 'approved_by', 'approved_date',
+		'user_id', 'approver_id', 'reference_id', 'model', 'operation', 'values','changes', 'is_approved', 'approved_by', 'approved_date',
 	];
 
 	/**
