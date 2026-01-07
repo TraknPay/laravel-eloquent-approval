@@ -4,14 +4,14 @@
   "license": "MIT",
   "authors": [
     {
-      "name": "Sharathkumar Hegde",
-      "email": "Sharathkumar.hegde@omniware.in"
+      "name": "Newton Kumar",
+      "email": "newton.kumar@omniware.in"
     }
   ],
   "require": {
-    "php": "^7.0|^8.0",
-    "illuminate/database": "^5.6.0|^6.0|^7.0|^8.0",
-    "illuminate/support": "^5.6.0|^6.0|^7.0|^8.0"
+    "php": "^8.0",
+    "illuminate/database": "^9.0",
+    "illuminate/support": "^9.0"
   },
   "extra": {
       "laravel": {
